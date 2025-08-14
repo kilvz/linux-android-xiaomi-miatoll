@@ -4,7 +4,7 @@
  * them to run sooner, but does not allow tons of sleepers to
  * rip the spread apart.
  */
-#define SCHED_FEAT_GENTLE_FAIR_SLEEPERS 0
+#define SCHED_FEAT_GENTLE_FAIR_SLEEPERS 1
 
 /*
  * Place new tasks ahead so that they do not starve already running
@@ -35,7 +35,7 @@
 /*
  * Allow wakeup-time preemption of the current task:
  */
-#define SCHED_FEAT_WAKEUP_PREEMPTION 1
+#define SCHED_FEAT_WAKEUP_PREEMPTION 0
 
 #define SCHED_FEAT_HRTICK 0
 #define SCHED_FEAT_DOUBLE_TICK 0
@@ -50,7 +50,7 @@
  * Queue remote wakeups on the target CPU and process them
  * using the scheduler IPI. Reduces rq->lock contention/bounces.
  */
-#define SCHED_FEAT_TTWU_QUEUE 0
+#define SCHED_FEAT_TTWU_QUEUE 1
 
 /*
  * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
@@ -118,7 +118,7 @@
  *   ON: If the target CPU saves any energy, use that.
  *   OFF: Use whichever of target or backup saves most.
  */
-#define SCHED_FEAT_EAS_PREFER_IDLE 1
+#define SCHED_FEAT_EAS_PREFER_IDLE 0
 #define SCHED_FEAT_FIND_BEST_TARGET 1
 #define SCHED_FEAT_FBT_STRICT_ORDER 0
 
