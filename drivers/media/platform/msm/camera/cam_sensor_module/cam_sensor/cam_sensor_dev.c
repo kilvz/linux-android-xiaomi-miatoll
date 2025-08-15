@@ -34,11 +34,22 @@ static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 	return rc;
 }
 
+static int cam_sensor_subdev_open(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh)
+{
+	struct cam_sensor_ctrl_t *s_ctrl = v4l2_get_subdevdata(sd);
+	if (!s_ctrl)
+		return -EINVAL;
+
+	atomic_inc(&s_ctrl->open_cnt);
+
+	return 0;
+}
+
 static int cam_sensor_subdev_close(struct v4l2_subdev *sd,
 	struct v4l2_subdev_fh *fh)
 {
-	struct cam_sensor_ctrl_t *s_ctrl =
-		v4l2_get_subdevdata(sd);
+struct cam_sensor_ctrl_t *s_ctrl =
+	v4l2_get_subdevdata(sd);
 
 	if (!s_ctrl) {
 		CAM_ERR(CAM_SENSOR, "s_ctrl ptr is NULL");
@@ -46,7 +57,30 @@ static int cam_sensor_subdev_close(struct v4l2_subdev *sd,
 	}
 
 	mutex_lock(&(s_ctrl->cam_sensor_mutex));
-	cam_sensor_shutdown(s_ctrl);
+
+	/* Defensive: never underflow */
+	if (atomic_read(&s_ctrl->open_cnt) > 0)
+		atomic_dec(&s_ctrl->open_cnt);
+
+	/*
+	* Ignore early closes that follow pure enumeration/probe.
+	* Many HALs do open/close during graph walk before ACQUIRE.
+	*/
+	if (s_ctrl->state == CAM_SENSOR_INIT) {
+		CAM_DBG(CAM_SENSOR, "ignore close in state %d", s_ctrl->state);
+		mutex_unlock(&(s_ctrl->cam_sensor_mutex));
+		return 0;
+	}
+
+	/*
+	 * Only perform a real shutdown when this is the last opener,
+	 * we are not streaming, and the sensor was acquired.
+	 */
+	if (atomic_read(&s_ctrl->open_cnt) == 0 &&
+			s_ctrl->state >= CAM_SENSOR_ACQUIRE) {
+		cam_sensor_shutdown(s_ctrl);
+	}
+
 	mutex_unlock(&(s_ctrl->cam_sensor_mutex));
 
 	return 0;
@@ -104,6 +138,7 @@ static struct v4l2_subdev_ops cam_sensor_subdev_ops = {
 };
 
 static const struct v4l2_subdev_internal_ops cam_sensor_internal_ops = {
+	.open  = cam_sensor_subdev_open,
 	.close = cam_sensor_subdev_close,
 };
 
@@ -124,6 +159,9 @@ static int cam_sensor_init_subdev_params(struct cam_sensor_ctrl_t *s_ctrl)
 	s_ctrl->v4l2_dev_str.ent_function =
 		CAM_SENSOR_DEVICE_TYPE;
 	s_ctrl->v4l2_dev_str.token = s_ctrl;
+
+	atomic_set(&s_ctrl->open_cnt, 0);
+	s_ctrl->state = CAM_SENSOR_INIT;
 
 	rc = cam_register_subdev(&(s_ctrl->v4l2_dev_str));
 	if (rc)
