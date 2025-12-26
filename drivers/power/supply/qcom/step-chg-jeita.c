@@ -767,7 +767,6 @@ static int handle_jeita(struct step_chg_info *chip)
 	enum power_supply_type real_type = POWER_SUPPLY_TYPE_UNKNOWN;
 	static bool fast_mode_dis;
 
-	pr_err("handle_jeita enter\n");
 	rc = power_supply_get_property(chip->batt_psy,
 		POWER_SUPPLY_PROP_SW_JEITA_ENABLED, &pval);
 	if (rc < 0)
@@ -826,8 +825,6 @@ static int handle_jeita(struct step_chg_info *chip)
 			pval.intval,
 			&chip->jeita_fcc_index,
 			&fcc_ua);
-	pr_err("temp:%d, new JEITA index:%d, New JEITA FCC:%d \n",
-				pval.intval, chip->jeita_fcc_index, fcc_ua);
 	if (rc < 0)
 		fcc_ua = 0;
 
@@ -857,9 +854,6 @@ static int handle_jeita(struct step_chg_info *chip)
 
 	if (!chip->usb_icl_votable)
 		goto set_jeita_fv;
-
-	pr_err("%s = %d FCC = %duA FV = %duV\n",
-			chip->jeita_fcc_config->param.prop_name, pval.intval, fcc_ua, fv_uv);
 
 	/* set and clear fast charge mode when soft jeita trigger and clear */
 	if (chip->six_pin_battery || chip->qc3p5_ffc_batt) {

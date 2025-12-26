@@ -2022,10 +2022,8 @@ static int qg_get_ffc_iterm_for_chg(struct qpnp_qg *chip)
 	ffc_chg_iterm = FFC_CHG_TERM_CURRENT;
 	if(chip->bp.ffc_chg_term_current != (-EINVAL) )
 	{
-		pr_err("Set ffc_chg_iterm = %d\n",chip->bp.ffc_chg_term_current );
 		ffc_chg_iterm = chip->bp.ffc_chg_term_current;
 	}
-	pr_err("Set ffc_chg_iterm = %d\n", ffc_chg_iterm );
 	return ffc_chg_iterm;
 }
 
@@ -2101,7 +2099,6 @@ static int qg_psy_get_property(struct power_supply *psy,
 		|| (psp == POWER_SUPPLY_PROP_PAGE0_DATA)
 		|| (psp == POWER_SUPPLY_PROP_CHIP_OK)) {
 		if (chip->max_verify_psy == NULL) {
-			pr_err("max_verify_psy is NULL\n");
 			return -ENODATA;
 		}
 	}
