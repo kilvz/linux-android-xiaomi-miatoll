@@ -3,7 +3,7 @@
 # Append -kilv to kernel version so uname -r identifies our build
 # kernel-snippet.mk passes KERNELRELEASE to make which overrides
 # CONFIG_LOCALVERSION, so we must set it here before the include.
-KERNEL_BASE_VERSION = 4.14-336-kilv
+override KERNEL_BASE_VERSION = 4.14-336-kilv
 export KBUILD_BUILD_USER = kilv
 
 # Override init_boot target BEFORE include so it matches first
@@ -18,6 +18,13 @@ out/KERNEL_OBJ/init_boot-%.img: out/KERNEL_OBJ/initramfs.% out/KERNEL_OBJ/dtb-me
 		-o $@
 
 include /usr/share/linux-packaging-snippets/kernel-snippet.mk
+
+# Patch bootimage postinst to suppress depmod warning about missing modules.builtin.modinfo
+override_dh_auto_install: patch_bootimage_postinst
+
+patch_bootimage_postinst:
+	sed -i 's|depmod -a|touch /lib/modules/$(KERNEL_RELEASE)/modules.builtin.modinfo 2>/dev/null; depmod -a|' \
+		debian/linux-bootimage-$(KERNEL_RELEASE).postinst
 
 %:
 	dh $@
