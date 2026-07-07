@@ -2642,7 +2642,7 @@ static int __hdd_mon_open(struct net_device *dev)
 	 * active. Treat monitor open as idempotent once the interface is already
 	 * opened to avoid re-creating monitor sessions.
 	 */
-	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
+	if ((adapter->device_mode == QDF_MONITOR_MODE) &&
 	    test_bit(DEVICE_IFACE_OPENED, &adapter->event_flags)) {
 		/*
 		 * Keep duplicate monitor ifup idempotent, but re-assert carrier
@@ -4163,22 +4163,29 @@ static int __hdd_stop(struct net_device *dev)
 	}
 
 	/*
-	 * In monitor mode, Android userspace daemons can still issue non-root
-	 * ifdown on wlan0 and tear monitor down unexpectedly, causing ENETDOWN
-	 * in injection/scanning tools. Ignore those requests.
+	 * In monitor mode, userspace ifdown tears down TX/RX/WMM state that
+	 * the subsequent ifup path cannot recover from (SME_SESSION_OPENED
+	 * stays set so hdd_start_adapter is skipped, but the adapter was
+	 * deinitialized).  Ignore ifdown entirely for monitor interfaces to
+	 * keep the interface usable.
 	 */
-	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
-	    !uid_eq(current_euid(), GLOBAL_ROOT_UID) &&
-	    (wlan_hdd_is_session_type_monitor(adapter->device_mode) ||
-	     dev->type == ARPHRD_IEEE80211_RADIOTAP)) {
-		hdd_warn_rl("Ignoring monitor ifdown from %s", current->comm);
+	if (adapter->device_mode == QDF_MONITOR_MODE ||
+	    dev->type == ARPHRD_IEEE80211_RADIOTAP) {
+		if (!uid_eq(current_euid(), GLOBAL_ROOT_UID))
+			hdd_warn_rl("Ignoring monitor ifdown from %s",
+				    current->comm);
+		else
+			hdd_warn_rl("monitor ifdown request accepted from %s, "
+				    "but ignoring to prevent ifup crash",
+				    current->comm);
+		/*
+		 * Keep queues/carrier up so userspace injection/scanning
+		 * tools do not observe ENETDOWN.
+		 */
+		wlan_hdd_netif_queue_control(adapter,
+					     WLAN_START_ALL_NETIF_QUEUE_N_CARRIER,
+					     WLAN_CONTROL_PATH);
 		return 0;
-	}
-
-	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
-	    (wlan_hdd_is_session_type_monitor(adapter->device_mode) ||
-	     dev->type == ARPHRD_IEEE80211_RADIOTAP)) {
-		hdd_warn_rl("monitor ifdown request accepted from %s", current->comm);
 	}
 
 	/* Nothing to be done if the interface is not opened */
