@@ -17356,6 +17356,7 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 		} else if (new_mode == QDF_MONITOR_MODE) {
 			hdd_stop_adapter(hdd_ctx, adapter);
 			hdd_deinit_adapter(hdd_ctx, adapter, true);
+			hdd_vdev_destroy(adapter);
 			memset(&adapter->session, 0, sizeof(adapter->session));
 			adapter->device_mode = new_mode;
 			adapter->dev->header_ops = NULL;
