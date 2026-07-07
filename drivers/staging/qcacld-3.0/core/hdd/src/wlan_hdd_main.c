@@ -2637,26 +2637,6 @@ static int __hdd_mon_open(struct net_device *dev)
 	if (ret)
 		return ret;
 
-	/*
-	 * Some Android daemons repeatedly issue ifup while monitor mode is
-	 * active. Treat monitor open as idempotent once the interface is already
-	 * opened to avoid re-creating monitor sessions.
-	 */
-	if ((adapter->device_mode == QDF_MONITOR_MODE) &&
-	    test_bit(DEVICE_IFACE_OPENED, &adapter->event_flags)) {
-		/*
-		 * Keep duplicate monitor ifup idempotent, but re-assert carrier
-		 * and queues so userspace does not observe ENETDOWN after daemon
-		 * races.
-		 */
-		wlan_hdd_netif_queue_control(adapter,
-					     WLAN_START_ALL_NETIF_QUEUE_N_CARRIER,
-					     WLAN_CONTROL_PATH);
-		hdd_warn_rl("Ignoring duplicate monitor ifup from %s (queues/carrier forced up)",
-			    current->comm);
-		return 0;
-	}
-
 	hdd_mon_mode_ether_setup(dev);
 
 	if (con_mode == QDF_GLOBAL_MONITOR_MODE) {
@@ -4160,32 +4140,6 @@ static int __hdd_stop(struct net_device *dev)
 	if (ret) {
 		set_bit(DOWN_DURING_SSR, &adapter->event_flags);
 		return ret;
-	}
-
-	/*
-	 * In monitor mode, userspace ifdown tears down TX/RX/WMM state that
-	 * the subsequent ifup path cannot recover from (SME_SESSION_OPENED
-	 * stays set so hdd_start_adapter is skipped, but the adapter was
-	 * deinitialized).  Ignore ifdown entirely for monitor interfaces to
-	 * keep the interface usable.
-	 */
-	if (adapter->device_mode == QDF_MONITOR_MODE ||
-	    dev->type == ARPHRD_IEEE80211_RADIOTAP) {
-		if (!uid_eq(current_euid(), GLOBAL_ROOT_UID))
-			hdd_warn_rl("Ignoring monitor ifdown from %s",
-				    current->comm);
-		else
-			hdd_warn_rl("monitor ifdown request accepted from %s, "
-				    "but ignoring to prevent ifup crash",
-				    current->comm);
-		/*
-		 * Keep queues/carrier up so userspace injection/scanning
-		 * tools do not observe ENETDOWN.
-		 */
-		wlan_hdd_netif_queue_control(adapter,
-					     WLAN_START_ALL_NETIF_QUEUE_N_CARRIER,
-					     WLAN_CONTROL_PATH);
-		return 0;
 	}
 
 	/* Nothing to be done if the interface is not opened */
@@ -6948,6 +6902,9 @@ QDF_STATUS hdd_stop_adapter(struct hdd_context *hdd_ctx,
 		if (QDF_IS_STATUS_ERROR(status))
 			hdd_err_rl("datapath reset failed for monitor mode");
 		hdd_set_idle_ps_config(hdd_ctx, true);
+		sme_delete_mon_session(hdd_ctx->mac_handle,
+				       adapter->vdev_id);
+		hdd_vdev_destroy(adapter);
 		break;
 
 	case QDF_SAP_MODE:
