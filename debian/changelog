@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707192822.d610c12.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707195523.87d7023.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -14,9 +14,10 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707192822.d610c12.droi
   * Revert "stop: ignore ifdown on monitor-mode adapter even via change_iface"
   * monitor: ignore ifdown/ifup cycle for change_iface-based monitor mode
   * monitor: fix PE session leak on teardown
+  * change_iface: destroy STA vdev when converting to monitor mode
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 03:28:22 +0800
+ -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 03:55:23 +0800
 

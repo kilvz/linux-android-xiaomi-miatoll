@@ -2616,6 +2616,8 @@ bool hdd_is_vdev_in_conn_state(struct hdd_adapter *adapter);
 int hdd_vdev_create(struct hdd_adapter *adapter);
 int hdd_vdev_destroy(struct hdd_adapter *adapter);
 int hdd_vdev_ready(struct hdd_adapter *adapter);
+int __hdd_driver_mode_change(struct hdd_context *hdd_ctx,
+			     enum QDF_GLOBAL_MODE next_mode);
 
 QDF_STATUS hdd_init_station_mode(struct hdd_adapter *adapter);
 struct hdd_adapter *hdd_get_adapter(struct hdd_context *hdd_ctx,
