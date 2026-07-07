@@ -1,12 +1,13 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707133656.a0c40b6.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707145235.82c30d9.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
   * qcacld-3.0: fix monitor mode restart by calling hdd_disable_monitor_mode on stop
   * qcacld-3.0: preserve monitor session/vdev across ifdown/ifup cycles
+  * qcacld-3.0: enable monitor iface create via iw and change_iface STA→MONITOR
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 21:36:56 +0800
+ -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 22:52:35 +0800
 
