@@ -4214,8 +4214,10 @@ static int __hdd_stop(struct net_device *dev)
 	if (adapter->device_mode == QDF_STA_MODE)
 		hdd_lpass_notify_stop(hdd_ctx);
 
-	if (wlan_hdd_is_session_type_monitor(adapter->device_mode))
+	if (wlan_hdd_is_session_type_monitor(adapter->device_mode)) {
 		hdd_reset_pktcapture_cb(OL_TXRX_PDEV_ID);
+		hdd_disable_monitor_mode(dev);
+	}
 
 	/*
 	 * NAN data interface is different in some sense. The traffic on NDI is

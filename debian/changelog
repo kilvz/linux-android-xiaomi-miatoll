@@ -1,6 +1,10 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260503130822.95c22fc.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707074414.b1f2825.droidian) trixie; urgency=medium
 
+  [ Droidian User ]
+  * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
+
+  [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Cédric Bellegarde <cedric.bellegarde@adishatz.org>  Sun, 03 May 2026 15:08:22 +0200
+ -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 15:44:14 +0800
 

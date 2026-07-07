@@ -47,6 +47,7 @@ __nf_nat_l3proto_find(u8 family)
 {
 	return rcu_dereference(nf_nat_l3protos[family]);
 }
+EXPORT_SYMBOL_GPL(__nf_nat_l3proto_find);
 
 inline const struct nf_nat_l4proto *
 __nf_nat_l4proto_find(u8 family, u8 protonum)
