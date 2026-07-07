@@ -103,6 +103,9 @@
 #include <cdp_txrx_misc.h>
 #include <qca_vendor.h>
 #include "wlan_pmo_ucfg_api.h"
+
+/* Monitor mode net_device_ops — defined in wlan_hdd_main.c */
+extern const struct net_device_ops wlan_mon_drv_ops;
 #include "os_if_wifi_pos.h"
 #include "wlan_utility.h"
 #include "wlan_reg_ucfg_api.h"
@@ -17350,6 +17353,22 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 			}
 
 			hdd_set_ap_ops(adapter->dev);
+		} else if (new_mode == QDF_MONITOR_MODE) {
+			hdd_stop_adapter(hdd_ctx, adapter);
+			hdd_deinit_adapter(hdd_ctx, adapter, true);
+			memset(&adapter->session, 0, sizeof(adapter->session));
+			adapter->device_mode = new_mode;
+			adapter->dev->header_ops = NULL;
+			adapter->dev->type = ARPHRD_IEEE80211_RADIOTAP;
+			adapter->dev->hard_header_len = ETH_HLEN;
+			adapter->dev->mtu = ETH_DATA_LEN;
+			adapter->dev->addr_len = ETH_ALEN;
+			adapter->dev->tx_queue_len = 1000;
+			adapter->dev->flags = IFF_BROADCAST|IFF_MULTICAST;
+			adapter->dev->priv_flags |= IFF_TX_SKB_SHARING;
+			memset(adapter->dev->broadcast, 0xFF, ETH_ALEN);
+			adapter->dev->netdev_ops = &wlan_mon_drv_ops;
+			adapter->wdev.iftype = NL80211_IFTYPE_MONITOR;
 		} else {
 			hdd_err("Changing to device mode '%s' is not supported",
 				qdf_opmode_str(new_mode));
@@ -17370,6 +17389,35 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 			iff_up = false;
 		} else {
 			hdd_err("Changing to device mode '%s' is not supported",
+				qdf_opmode_str(new_mode));
+			errno = -EOPNOTSUPP;
+			goto err;
+		}
+	} else if (adapter->device_mode == QDF_MONITOR_MODE) {
+		if (hdd_is_client_mode(new_mode)) {
+			hdd_stop_adapter(hdd_ctx, adapter);
+			hdd_deinit_adapter(hdd_ctx, adapter, true);
+			memset(&adapter->session, 0, sizeof(adapter->session));
+			adapter->device_mode = new_mode;
+			ether_setup(adapter->dev);
+			hdd_set_station_ops(adapter->dev);
+			if (new_mode == QDF_STA_MODE)
+				adapter->wdev.iftype = NL80211_IFTYPE_STATION;
+			else if (new_mode == QDF_P2P_CLIENT_MODE)
+				adapter->wdev.iftype = NL80211_IFTYPE_P2P_CLIENT;
+			else if (new_mode == QDF_P2P_DEVICE_MODE)
+				adapter->wdev.iftype = NL80211_IFTYPE_P2P_DEVICE;
+		} else if (hdd_is_ap_mode(new_mode)) {
+			hdd_stop_adapter(hdd_ctx, adapter);
+			hdd_deinit_adapter(hdd_ctx, adapter, true);
+			memset(&adapter->session, 0, sizeof(adapter->session));
+			adapter->device_mode = new_mode;
+			ether_setup(adapter->dev);
+			hdd_set_ap_ops(adapter->dev);
+			adapter->wdev.iftype = (new_mode == QDF_SAP_MODE) ?
+				NL80211_IFTYPE_AP : NL80211_IFTYPE_P2P_GO;
+		} else {
+			hdd_err("Changing from monitor to '%s' is not supported",
 				qdf_opmode_str(new_mode));
 			errno = -EOPNOTSUPP;
 			goto err;

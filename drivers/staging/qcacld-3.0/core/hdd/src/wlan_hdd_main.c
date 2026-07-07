@@ -2666,17 +2666,17 @@ static int __hdd_mon_open(struct net_device *dev)
 			return ret;
 		}
 		hdd_err("hdd_wlan_start_modules() successful !");
-
-		if (!test_bit(SME_SESSION_OPENED, &adapter->event_flags)) {
-			ret = hdd_start_adapter(adapter);
-			if (ret) {
-				hdd_err("Failed to start adapter :%d",
-					adapter->device_mode);
-				return ret;
-			}
-			hdd_err("hdd_start_adapters() successful !");
-		}
 		hdd_mon_turn_off_ps_and_wow(hdd_ctx);
+	}
+
+	if (!test_bit(SME_SESSION_OPENED, &adapter->event_flags)) {
+		ret = hdd_start_adapter(adapter);
+		if (ret) {
+			hdd_err("Failed to start adapter :%d",
+				adapter->device_mode);
+			return ret;
+		}
+		hdd_err("hdd_start_adapters() successful !");
 	}
 
 	ret = hdd_set_mon_rx_cb(dev);
@@ -4919,7 +4919,7 @@ static const struct net_device_ops wlan_drv_ops = {
 
 #ifdef FEATURE_MONITOR_MODE_SUPPORT
 /* Monitor mode net_device_ops, doesnot Tx and most of operations. */
-static const struct net_device_ops wlan_mon_drv_ops = {
+const struct net_device_ops wlan_mon_drv_ops = {
 	.ndo_open = hdd_mon_open,
 	.ndo_stop = hdd_stop,
 	.ndo_start_xmit = hdd_hard_start_xmit,
@@ -17839,8 +17839,12 @@ bool wlan_hdd_check_mon_concurrency(void)
 void wlan_hdd_del_monitor(struct hdd_context *hdd_ctx,
 			  struct hdd_adapter *adapter, bool rtnl_held)
 {
+	mac_handle_t mac_handle = hdd_adapter_get_mac_handle(adapter);
+
 	wlan_hdd_release_intf_addr(hdd_ctx, adapter->mac_addr.bytes);
 	hdd_stop_adapter(hdd_ctx, adapter);
+	sme_delete_mon_session(mac_handle, adapter->vdev_id);
+	hdd_vdev_destroy(adapter);
 	hdd_close_adapter(hdd_ctx, adapter, true);
 
 	hdd_open_p2p_interface(hdd_ctx);
@@ -17869,14 +17873,6 @@ wlan_hdd_add_monitor_check(struct hdd_context *hdd_ctx,
 	uint32_t mode;
 	uint8_t num_open_session = 0;
 
-	if (!cds_is_pktcapture_enabled())
-		return 0;
-
-	/*
-	 * If add interface request is for monitor mode, then it can run in
-	 * parallel with only one station interface.
-	 * If there is no existing station interface return error
-	 */
 	if (type != NL80211_IFTYPE_MONITOR)
 		return 0;
 
@@ -17898,17 +17894,13 @@ wlan_hdd_add_monitor_check(struct hdd_context *hdd_ctx,
 						&num_open_session))
 		return -EINVAL;
 
-	if (num_open_session != 1) {
+	if (num_open_session > 1) {
 		hdd_err("cannot add monitor mode, due to %u sta interfaces",
 			num_open_session);
 		return -EINVAL;
 	}
 
 	sta_adapter = hdd_get_adapter(hdd_ctx, QDF_STA_MODE);
-	if (!sta_adapter) {
-		hdd_err("No station adapter");
-		return -EINVAL;
-	}
 
 	if (QDF_STATUS_SUCCESS != policy_mgr_mode_specific_num_open_sessions(
 						hdd_ctx->psoc,
