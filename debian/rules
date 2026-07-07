@@ -1,5 +1,11 @@
 #!/usr/bin/make -f
 
+# Append -kilv to kernel version so uname -r identifies our build
+# kernel-snippet.mk passes KERNELRELEASE to make which overrides
+# CONFIG_LOCALVERSION, so we must set it here before the include.
+KERNEL_BASE_VERSION = 4.14-336-kilv
+export KBUILD_BUILD_USER = kilv
+
 # Override init_boot target BEFORE include so it matches first
 # Reference: https://github.com/droidian/linux-packaging-snippets/blob/droidian/kernel-snippet.mk#L357
 out/KERNEL_OBJ/init_boot-%.img: out/KERNEL_OBJ/initramfs.% out/KERNEL_OBJ/dtb-merged
