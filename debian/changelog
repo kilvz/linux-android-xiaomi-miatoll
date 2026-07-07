@@ -1,10 +1,11 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707074414.b1f2825.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707124003.78d0538.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
+  * qcacld-3.0: fix monitor mode restart by calling hdd_disable_monitor_mode on stop
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 15:44:14 +0800
+ -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 20:40:03 +0800
 

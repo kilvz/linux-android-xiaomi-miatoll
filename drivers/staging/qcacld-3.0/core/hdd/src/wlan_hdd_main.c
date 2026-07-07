@@ -4214,10 +4214,8 @@ static int __hdd_stop(struct net_device *dev)
 	if (adapter->device_mode == QDF_STA_MODE)
 		hdd_lpass_notify_stop(hdd_ctx);
 
-	if (wlan_hdd_is_session_type_monitor(adapter->device_mode)) {
+	if (wlan_hdd_is_session_type_monitor(adapter->device_mode))
 		hdd_reset_pktcapture_cb(OL_TXRX_PDEV_ID);
-		hdd_disable_monitor_mode(dev);
-	}
 
 	/*
 	 * NAN data interface is different in some sense. The traffic on NDI is
@@ -6939,11 +6937,10 @@ QDF_STATUS hdd_stop_adapter(struct hdd_context *hdd_ctx,
 		wlan_hdd_scan_abort(adapter);
 		hdd_deregister_hl_netdev_fc_timer(adapter);
 		hdd_deregister_tx_flow_control(adapter);
-		status = hdd_monitor_mode_vdev_status(adapter);
+		status = hdd_disable_monitor_mode(adapter->dev);
 		if (QDF_IS_STATUS_ERROR(status))
-			hdd_err_rl("stop failed montior mode");
-		sme_delete_mon_session(mac_handle, adapter->vdev_id);
-		hdd_vdev_destroy(adapter);
+			hdd_err_rl("datapath reset failed for monitor mode");
+		hdd_set_idle_ps_config(hdd_ctx, true);
 		break;
 
 	case QDF_SAP_MODE:
