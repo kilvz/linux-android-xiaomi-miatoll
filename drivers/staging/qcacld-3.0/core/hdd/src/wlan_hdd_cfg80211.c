@@ -17297,33 +17297,6 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 		return -EOPNOTSUPP;
 	}
 
-	/*
-	 * Delegate monitor mode transitions to the con_mode mechanism,
-	 * which performs a complete firmware idle shutdown/restart cycle.
-	 * This is far more reliable than manually managing the adapter vdev
-	 * state, especially when the interface is DOWN before conversion.
-	 */
-	if (new_mode == QDF_MONITOR_MODE &&
-	    hdd_get_conparam() != QDF_GLOBAL_MONITOR_MODE) {
-		hdd_psoc_idle_timer_stop(hdd_ctx);
-		errno = __hdd_driver_mode_change(hdd_ctx,
-						 QDF_GLOBAL_MONITOR_MODE);
-		if (!errno)
-			ndev->ieee80211_ptr->iftype = type;
-		return errno;
-	}
-
-	if (adapter->device_mode == QDF_MONITOR_MODE &&
-	    new_mode != QDF_MONITOR_MODE &&
-	    hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE) {
-		hdd_psoc_idle_timer_stop(hdd_ctx);
-		errno = __hdd_driver_mode_change(hdd_ctx,
-						 QDF_GLOBAL_MISSION_MODE);
-		if (!errno)
-			ndev->ieee80211_ptr->iftype = type;
-		return errno;
-	}
-
 	errno = hdd_trigger_psoc_idle_restart(hdd_ctx);
 	if (errno) {
 		hdd_err("Failed to restart psoc; errno:%d", errno);

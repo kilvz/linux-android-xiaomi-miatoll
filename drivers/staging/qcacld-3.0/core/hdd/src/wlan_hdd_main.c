@@ -16214,7 +16214,7 @@ static int hdd_mode_change_psoc_idle_restart(struct device *dev)
  *
  * Return: Errno
  */
-int __hdd_driver_mode_change(struct hdd_context *hdd_ctx,
+static int __hdd_driver_mode_change(struct hdd_context *hdd_ctx,
 			    enum QDF_GLOBAL_MODE next_mode)
 {
 	enum QDF_GLOBAL_MODE curr_mode;
