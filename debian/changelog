@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707153503.a037bc8.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707170845.dd6ec19.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -7,9 +7,11 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707153503.a037bc8.droi
   * qcacld-3.0: enable monitor iface create via iw and change_iface STA→MONITOR
   * debian: update changelog for 82c30d9
   * debian/rules: add -kilv suffix to kernel version and set KBUILD_BUILD_USER=kilv
+  * debian/rules: fix depmod warning in bootimage postinst
+  * stop: ignore ifdown on monitor-mode adapter even via change_iface
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Tue, 07 Jul 2026 23:35:03 +0800
+ -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 01:08:45 +0800
 

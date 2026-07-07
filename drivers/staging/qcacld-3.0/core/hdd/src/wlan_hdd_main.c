@@ -2641,8 +2641,11 @@ static int __hdd_mon_open(struct net_device *dev)
 	 * Some Android daemons repeatedly issue ifup while monitor mode is
 	 * active. Treat monitor open as idempotent once the interface is already
 	 * opened to avoid re-creating monitor sessions.
+	 * Check adapter-level device mode too (not just global conparam),
+	 * since change_iface sets the adapter to MONITOR_MODE without
+	 * changing QDF_GLOBAL_STA_MODE.
 	 */
-	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
+	if (wlan_hdd_is_session_type_monitor(adapter->device_mode) &&
 	    test_bit(DEVICE_IFACE_OPENED, &adapter->event_flags)) {
 		/*
 		 * Keep duplicate monitor ifup idempotent, but re-assert carrier
