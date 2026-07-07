@@ -1,5 +1,16 @@
 #!/usr/bin/make -f
 
+# Override init_boot target BEFORE include so it matches first
+# Reference: https://github.com/droidian/linux-packaging-snippets/blob/droidian/kernel-snippet.mk#L357
+out/KERNEL_OBJ/init_boot-%.img: out/KERNEL_OBJ/initramfs.% out/KERNEL_OBJ/dtb-merged
+	eval mkbootimg \
+		--header_version $(KERNEL_BOOTIMAGE_VERSION) \
+		--ramdisk $< \
+		--dtb $(KERNEL_OUT)/dtb-merged \
+		--dtb_offset $(KERNEL_BOOTIMAGE_DTB_OFFSET) \
+		--pagesize $(KERNEL_BOOTIMAGE_PAGE_SIZE) \
+		-o $@
+
 include /usr/share/linux-packaging-snippets/kernel-snippet.mk
 
 %:

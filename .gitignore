@@ -120,3 +120,16 @@ all.config
 
 # fetched Android config fragments
 kernel/configs/android-*.cfg
+
+# Build output
+/out/
+
+# Debian build artifacts
+/debian/*.substvars
+/debian/files
+/debian/debhelper-build-stamp
+/debian/*.postinst
+/debian/*.postrm
+/debian/*.debhelper
+/debian/linux-*/
+/debian/path-override/

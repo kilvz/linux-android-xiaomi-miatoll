@@ -1,15 +1,16 @@
 Source: linux-android-xiaomi-miatoll
 Section: kernel
 Priority: optional
-Maintainer: Bardia Moshiri <fakeshell@bardia.tech>
-Uploaders: Bardia Moshiri <fakeshell@bardia.tech>
+Maintainer: Droidian porters <info@droidian.org>
 XS-Droidian-Host-Arch: arm64
 XS-Droidian-Build-On: amd64
+XS-Droidian-Compact-Changelog: yes
 Build-Depends: build-essential,
                dpkg-dev,
                findutils,
-               android-platform-prebuilts-python-linux-x86-2.7.5,
+               android-platform-prebuilts-python-linux-x86-2.7.5 [amd64],
                debhelper (>= 13),
+               debhelper-compat (= 13),
                bc,
                rsync,
                kmod,
@@ -23,10 +24,11 @@ Build-Depends: build-essential,
                mkbootimg (>= 10.0.0),
                mkdtboimg,
                avbtool,
+               lz4,
                linux-initramfs-halium-generic:arm64, binutils-aarch64-linux-gnu, clang-android-6.0-4691093, gcc-4.9-aarch64-linux-android, g++-4.9-aarch64-linux-android, libgcc-4.9-dev-aarch64-linux-android-cross
 Standards-Version: 4.5.0.3
-Vcs-Browser: https://github.com/droidian/linux-android-xiaomi-miatoll
-Vcs-Git: https://github.com/droidian/linux-android-xiaomi-miatoll.git
+Vcs-Browser: https://github.com/droidian-devices/linux-android-xiaomi-miatoll
+Vcs-Git: https://github.com/droidian-devices/linux-android-xiaomi-miatoll.git
 
 Package: linux-image-4.14-336-xiaomi-miatoll
 Architecture: arm64

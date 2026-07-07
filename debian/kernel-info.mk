@@ -147,6 +147,9 @@ BUILD_CC = clang
 # to specify the clang path here (the default).
 BUILD_PATH = /usr/lib/llvm-android-6.0-4691093/bin
 
+# Set to 1 to prevent kernel-snippet.mk from prepending clang-android-$(CLANG_VERSION)
+CLANG_CUSTOM = 1
+
 # Extra packages to add to the Build-Depends section. Mainline builds
 # can have this section empty, unless cross-building.
 # The default is enough to install the Android toolchain, including clang.
