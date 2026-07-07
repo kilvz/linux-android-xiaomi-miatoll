@@ -4166,26 +4166,19 @@ static int __hdd_stop(struct net_device *dev)
 	 * In monitor mode, Android userspace daemons can still issue non-root
 	 * ifdown on wlan0 and tear monitor down unexpectedly, causing ENETDOWN
 	 * in injection/scanning tools. Ignore those requests.
-	 * Also ignore ifdown when the adapter is in monitor mode (even if
-	 * it was set via change_iface rather than global monitor mode), since
-	 * the ifdown would destroy TX/RX state that ifup cannot recover.
 	 */
-	if (wlan_hdd_is_session_type_monitor(adapter->device_mode) ||
-	    dev->type == ARPHRD_IEEE80211_RADIOTAP) {
-		if (!uid_eq(current_euid(), GLOBAL_ROOT_UID))
-			hdd_warn_rl("Ignoring monitor ifdown from %s",
-				    current->comm);
-		else
-			hdd_warn_rl("monitor ifdown request accepted from %s",
-				    current->comm);
-		/*
-		 * Keep queues/carrier up so userspace injection tools do
-		 * not observe ENETDOWN.
-		 */
-		wlan_hdd_netif_queue_control(adapter,
-					     WLAN_START_ALL_NETIF_QUEUE_N_CARRIER,
-					     WLAN_CONTROL_PATH);
+	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
+	    !uid_eq(current_euid(), GLOBAL_ROOT_UID) &&
+	    (wlan_hdd_is_session_type_monitor(adapter->device_mode) ||
+	     dev->type == ARPHRD_IEEE80211_RADIOTAP)) {
+		hdd_warn_rl("Ignoring monitor ifdown from %s", current->comm);
 		return 0;
+	}
+
+	if (hdd_get_conparam() == QDF_GLOBAL_MONITOR_MODE &&
+	    (wlan_hdd_is_session_type_monitor(adapter->device_mode) ||
+	     dev->type == ARPHRD_IEEE80211_RADIOTAP)) {
+		hdd_warn_rl("monitor ifdown request accepted from %s", current->comm);
 	}
 
 	/* Nothing to be done if the interface is not opened */
