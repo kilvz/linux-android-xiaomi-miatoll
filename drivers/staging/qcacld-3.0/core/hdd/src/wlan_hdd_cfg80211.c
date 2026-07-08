@@ -17354,6 +17354,15 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
 
 			hdd_set_ap_ops(adapter->dev);
 		} else if (new_mode == QDF_MONITOR_MODE) {
+#ifdef FEATURE_FRAME_INJECTION_SUPPORT
+			/* Flush pending injection work before vdev teardown */
+			if (adapter->injection_ctx) {
+				qdf_cancel_work(
+					&adapter->injection_ctx->queue_work);
+				qdf_flush_work(
+					&adapter->injection_ctx->queue_work);
+			}
+#endif
 			hdd_stop_adapter(hdd_ctx, adapter);
 			hdd_deinit_adapter(hdd_ctx, adapter, true);
 			hdd_vdev_destroy(adapter);
