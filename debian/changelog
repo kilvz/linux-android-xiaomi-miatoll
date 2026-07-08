@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707234037.5f8678a.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260708013051.a8b1207.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -19,9 +19,11 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260707234037.5f8678a.droi
   * change_iface: delegate monitor mode transitions to con_mode\n\nInstead of manually managing adapter vdev state in the change_iface\npath (which is fragile and crashes when the interface is DOWN before\nconversion), delegate STA<->MONITOR mode transitions to the con_mode\nmechanism. The con_mode path performs a full firmware idle\nshutdown/restart cycle, ensuring clean state initialization.\n\nThis fixes the crash that occurred when:\n1. ifdown wlan0 (STA)\n2. iw dev wlan0 set type monitor  (iff_up=false)\n3. ifup wlan0                  → delayed panic ~1s later
   * Revert change_iface con_mode delegation (deadlocks), revert __hdd_driver_mode_change to static
   * monitor: make ifdown/ifup no-ops for change_iface-based monitor mode
+  * monitor: simplify ifdown no-op to avoid queue control crash
+  * monitor: fix NULL deref and flush injection work on mode switch
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 07:40:37 +0800
+ -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 09:30:51 +0800
 
