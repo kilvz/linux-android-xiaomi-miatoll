@@ -37,7 +37,7 @@ lib-y := ctype.o string.o vsprintf.o cmdline.o \
 	 earlycpio.o seq_buf.o siphash.o \
 	 nodemask.o win_minmax.o
 
-lib-$(CONFIG_WATCHDOG) += nmi_backgrace.o
+lib-$(CONFIG_WATCHDOG) += nmi_backtrace.o
 
 CFLAGS_kobject_uevent.o += -Wframe-larger-than=3072
 lib-$(CONFIG_MMU) += ioremap.o
