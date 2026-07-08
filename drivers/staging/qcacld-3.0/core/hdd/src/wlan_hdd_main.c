@@ -16313,6 +16313,17 @@ static int __hdd_driver_mode_change(struct hdd_context *hdd_ctx,
 				      WIFI_POWER_EVENT_WAKELOCK_MONITOR_MODE);
 	}
 
+	if (next_mode == QDF_GLOBAL_MISSION_MODE) {
+		struct hdd_adapter *adapter =
+			hdd_get_adapter(hdd_ctx, QDF_STA_MODE);
+
+		if (adapter) {
+			errno = hdd_start_adapter(adapter);
+			if (errno)
+				hdd_err("Failed to start STA adapter");
+		}
+	}
+
 	/* con_mode is a global module parameter */
 	con_mode = next_mode;
 	hdd_info("Driver mode successfully changed to %d", next_mode);
