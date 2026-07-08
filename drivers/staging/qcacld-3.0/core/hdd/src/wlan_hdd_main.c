@@ -4159,22 +4159,13 @@ static int __hdd_stop(struct net_device *dev)
 	}
 
 	/*
-	 * Ignore ifdown for monitor interfaces to prevent vdev teardown
-	 * that the subsequent ifup path cannot recover from (SME_SESSION_OPENED
-	 * stays set so hdd_start_adapter is skipped).  Also keep carrier/queues
-	 * asserted so userspace injection/scanning tools don't see ENETDOWN.
-	 *
-	 * For con_mode-based monitor (echo 4 > con_mode), root can still
-	 * ifdown since the con_mode mechanism does a full firmware restart.
-	 * For change_iface-based monitor, ifdown is always ignored.
+	 * Ignore ifdown for change_iface-based monitor interfaces to
+	 * prevent vdev teardown that the subsequent ifup path cannot
+	 * recover from.
 	 */
 	if (adapter->device_mode == QDF_MONITOR_MODE &&
 	    hdd_get_conparam() != QDF_GLOBAL_MONITOR_MODE) {
 		set_bit(DEVICE_IFACE_OPENED, &adapter->event_flags);
-		wlan_hdd_netif_queue_control(adapter,
-					     WLAN_START_ALL_NETIF_QUEUE_N_CARRIER,
-					     WLAN_CONTROL_PATH);
-		hdd_warn_rl("monitor ifdown ignored for %s", current->comm);
 		return 0;
 	}
 
