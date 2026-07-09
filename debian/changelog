@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260708013051.a8b1207.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709002644.5d263d4.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -21,9 +21,19 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260708013051.a8b1207.droi
   * monitor: make ifdown/ifup no-ops for change_iface-based monitor mode
   * monitor: simplify ifdown no-op to avoid queue control crash
   * monitor: fix NULL deref and flush injection work on mode switch
+  * debian: drop -kilv suffix from package names, update changelog
+  * README: add full documentation with monitor mode fixes, usage, and build instructions
+  * defconfig: disable MODULE_SIG_FORCE to allow unsigned vendor modules
+  * con_mode: auto-start STA adapter when switching to MISSION_MODE
+  * defconfig: tune for 24/7 Waydroid + Hermes workload
+  * defconfig: BBR default, LZ4 ZRAM, Power Allocator, up-rate 2000
+  * defconfig: WATCHDOG + FAIR_GROUP_SCHED
+  * lib/Makefile: fix typo nmi_backgrace -> nmi_backtrace
+  * defconfig: DETECT_HUNG_TASK with 30s timeout
+  * defconfig: ZRAM_WRITEBACK=y
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Wed, 08 Jul 2026 09:30:51 +0800
+ -- Droidian User <user@droidian.org>  Thu, 09 Jul 2026 08:26:44 +0800
 

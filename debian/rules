@@ -13,6 +13,13 @@ out/KERNEL_OBJ/init_boot-%.img: out/KERNEL_OBJ/initramfs.% out/KERNEL_OBJ/dtb-me
 		--pagesize $(KERNEL_BOOTIMAGE_PAGE_SIZE) \
 		-o $@
 
+# Fix default I/O scheduler after config generation (alldefconfig resets choices to Kconfig defaults)
+override_dh_auto_configure: fixup-kernel-config
+fixup-kernel-config: out/KERNEL_OBJ/.config
+	sed -i 's/^CONFIG_DEFAULT_IOSCHED="cfq"/CONFIG_DEFAULT_IOSCHED="bfq"/' $(KERNEL_OUT)/.config
+	sed -i 's/^CONFIG_DEFAULT_CFQ=y$$/# CONFIG_DEFAULT_CFQ is not set/' $(KERNEL_OUT)/.config
+	sed -i 's/^# CONFIG_DEFAULT_BFQ is not set$$/CONFIG_DEFAULT_BFQ=y/' $(KERNEL_OUT)/.config
+
 include /usr/share/linux-packaging-snippets/kernel-snippet.mk
 
 # Patch bootimage postinst to suppress depmod warning about missing modules.builtin.modinfo
