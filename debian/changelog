@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709021614.7200e5b.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709023627.04769c4.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -32,9 +32,10 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709021614.7200e5b.droi
   * defconfig: DETECT_HUNG_TASK with 30s timeout
   * defconfig: ZRAM_WRITEBACK=y
   * fix: DEFAULT_IOSCHED bfq (alldefconfig revert) + remove nosoftlockup
+  * block/Kconfig.iosched: add BFQ as default I/O scheduler choice
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Thu, 09 Jul 2026 10:16:14 +0800
+ -- Droidian User <user@droidian.org>  Thu, 09 Jul 2026 10:36:27 +0800
 
