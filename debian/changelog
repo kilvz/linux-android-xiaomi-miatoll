@@ -1,11 +1,12 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709.rcuexp.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709.hz100fq.droidian) trixie; urgency=medium
 
   [ kilv ]
-  * Remove rcupdate.rcu_expedited=1 from bootargs (forces costly IPIs)
+  * defconfig: switch HZ 250→100 for lower timer overhead
+  * defconfig: enable NET_SCH_FQ=m for BBR pacing
 
- -- kilv <kilv@kilv.xyz>  Thu, 09 Jul 2026 12:06:25 +0800
+ -- kilv <kilv@kilv.xyz>  Thu, 09 Jul 2026 12:34:04 +0800
 
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709034033.3cc8ae8.droidian) trixie; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709040631.be2466e.droidian) trixie; urgency=medium
 
   [ Droidian User ]
   * Add Kali NetHunter support for Xiaomi miatoll (joyeuse)
@@ -42,9 +43,10 @@ linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260709034033.3cc8ae8.droi
   * block/Kconfig.iosched: add BFQ as default I/O scheduler choice
   * Revert atoll.dtsi: restore nosoftlockup boot parameter
   * Revert BFQ default approach — use runtime switching instead
+  * Remove rcupdate.rcu_expedited=1 from bootargs (forces costly IPIs, hurts perf)
 
   [ Cédric Bellegarde ]
   * arch: arm64: configs: Add POSIX_MQUEUE
 
- -- Droidian User <user@droidian.org>  Thu, 09 Jul 2026 11:40:33 +0800
+ -- Droidian User <user@droidian.org>  Thu, 09 Jul 2026 12:06:31 +0800
 
