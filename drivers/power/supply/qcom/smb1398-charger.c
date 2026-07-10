@@ -768,7 +768,7 @@ unlock:
 	mutex_unlock(&chip->die_chan_lock);
 	if (rc >= 0) {
 		*isns_ua = calculate_div2_cp_isns_ua(temp);
-		pr_err("smb1398 master isns = %duA\n", *isns_ua);
+		dev_dbg(chip->dev, "master isns = %duA\n", *isns_ua);
 	}
 
 	return rc;
