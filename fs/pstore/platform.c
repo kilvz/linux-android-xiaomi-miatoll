@@ -435,6 +435,8 @@ static int pstore_decompress(void *in, void *out, size_t inlen, size_t outlen)
 
 static void allocate_buf_for_compression(void)
 {
+	if (!zbackend)
+		pstore_choose_compression();
 	if (zbackend) {
 		zbackend->allocate();
 	} else {
@@ -901,15 +903,20 @@ void __init pstore_choose_compression(void)
 {
 	const struct pstore_zbackend *step;
 
-	if (!compress)
-		return;
-
-	for (step = zbackends; step->name; step++) {
-		if (!strcmp(compress, step->name)) {
-			zbackend = step;
-			pr_info("using %s compression\n", zbackend->name);
-			return;
+	if (compress) {
+		for (step = zbackends; step->name; step++) {
+			if (!strcmp(compress, step->name)) {
+				zbackend = step;
+				pr_info("using %s compression\n", zbackend->name);
+				return;
+			}
 		}
+	}
+
+	step = zbackends;
+	if (step->name) {
+		zbackend = step;
+		pr_info("using %s compression\n", zbackend->name);
 	}
 }
 
