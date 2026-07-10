@@ -1898,6 +1898,12 @@ static int smb1398_div2_cp_hw_init(struct smb1398_chip *chip)
 		return rc;
 	}
 
+	/* Disable ILIM detection to prevent interrupt storm when idle */
+	rc = smb1398_masked_write(chip, DIV2_CURRENT_REG, DIV2_EN_ILIM_DET, 0);
+	if (rc < 0)
+		dev_err(chip->dev, "Disable DIV2_EN_ILIM_DET failed, rc=%d\n",
+				rc);
+
 	return rc;
 }
 

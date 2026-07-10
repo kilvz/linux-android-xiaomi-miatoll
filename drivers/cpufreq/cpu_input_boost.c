@@ -145,22 +145,17 @@ static int cpu_notifier_cb(struct notifier_block *nb, unsigned long action,
 	if (action != CPUFREQ_ADJUST)
 		return NOTIFY_OK;
 
-	/* Unboost when the screen is off */
-	if (test_bit(SCREEN_OFF, &b->state)) {
-		policy->min = policy->cpuinfo.min_freq;
-		return NOTIFY_OK;
-	}
-
 	/*
 	 * Boost to policy->max if the boost frequency is higher. When
-	 * unboosting, set policy->min to the absolute min freq for the CPU.
+	 * unboosting, leave policy->min alone so user-set scaling_min_freq
+	 * or the default cpuinfo.min_freq is preserved.
 	 */
-	if (test_bit(INPUT_BOOST, &b->state))
+	if (test_bit(SCREEN_OFF, &b->state))
+		policy->min = policy->cpuinfo.min_freq;
+	else if (test_bit(INPUT_BOOST, &b->state))
 		policy->min = get_input_boost_freq(policy, false);
 	else if (test_bit(MAX_BOOST, &b->state))
 		policy->min = get_input_boost_freq(policy, true);
-	else
-		policy->min = policy->cpuinfo.min_freq;
 
 	return NOTIFY_OK;
 }
