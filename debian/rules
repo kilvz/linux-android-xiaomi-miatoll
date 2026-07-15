@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+export KBUILD_BUILD_USER = kilv
+
+# Override init_boot target BEFORE include so it matches first
+# Reference: https://github.com/droidian/linux-packaging-snippets/blob/droidian/kernel-snippet.mk#L357
+out/KERNEL_OBJ/init_boot-%.img: out/KERNEL_OBJ/initramfs.% out/KERNEL_OBJ/dtb-merged
+	eval mkbootimg \
+		--header_version $(KERNEL_BOOTIMAGE_VERSION) \
+		--ramdisk $< \
+		--dtb $(KERNEL_OUT)/dtb-merged \
+		--dtb_offset $(KERNEL_BOOTIMAGE_DTB_OFFSET) \
+		--pagesize $(KERNEL_BOOTIMAGE_PAGE_SIZE) \
+		-o $@
+
+include /usr/share/linux-packaging-snippets/kernel-snippet.mk
+
+# Patch bootimage postinst to suppress depmod warning about missing modules.builtin.modinfo
+override_dh_auto_install: patch_bootimage_postinst
+
+patch_bootimage_postinst:
+	sed -i 's|depmod -a|touch /lib/modules/$(KERNEL_RELEASE)/modules.builtin.modinfo 2>/dev/null; depmod -a|' \
+		debian/linux-bootimage-$(KERNEL_RELEASE).postinst
+
+%:
+	dh $@
