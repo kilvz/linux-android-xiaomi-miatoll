@@ -1,14 +1,15 @@
-linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master+git20260720194047.0ab188a.master) master; urgency=medium
 
   * Build 25: silence charger/PD dmesg spam + FTS gesture resume fix + deferred USB plugin
   * smb5-lib.c: downgrade 9 pr_err/smblib_err to pr_debug/smblib_dbg (set icl current,
-    start_step_vbat, battery over-voltage, dm_pulse, dp_dm, input_present, six_pin_work ×3)
+    start_step_vbat, battery over-voltage, dm_pulse, dp_dm, input_present, six_pin_work x3)
   * policy_engine.c: downgrade usbpd_info/pr_info to usbpd_dbg/pr_debug (tx_msgid, request pdo)
   * smb1398-charger.c: downgrade pr_err to pr_debug (curr vfloat below threshold)
-  * focaltech_gesture.c: increase gesture suspend/resume retry from 5×1ms to 50×2ms;
+  * focaltech_gesture.c: increase gesture suspend/resume retry from 5x1ms to 50x2ms;
     downgrade FTS_ERROR to FTS_INFO
-  * focaltech_core.c: defer USB plugin state when TP suspended — apply directly in resume
-    handler instead of dropping the event and relying on event_callback re-trigger
+  * focaltech_core.c: defer USB plugin state when TP suspended - apply directly in resume
+    handler instead of dropping the event
   * KERNEL_BASE_VERSION override NOT added (user request)
 
- -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 22:00:00 +0800
+ -- Droidian User <user@droidian.org>  Tue, 21 Jul 2026 03:40:47 +0800
+
