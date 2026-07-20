@@ -1,5 +1,20 @@
-linux-android-xiaomi-miatoll (4.14.336+usb-fix) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720104032.b23.master) master; urgency=medium
 
+  * Build 23: Revert dangerous dwc3-msm OTG no-teardown + ep0 dequeue bypass
+  * Revert dwc3-msm DRD_STATE_PERIPHERAL split: !BSV must teardown gadget
+    (no-teardown on VBUS drop caused DWC3 state mismatch → hard freeze)
+  * Revert ep0 dequeue bypass (use-after-free risk); keep dev_err→dev_dbg only
+  * Keep FTS USB event debounce (500ms) — safe, fixes charge mode toggle storm
+
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720102632.a3ac5c3.master) master; urgency=medium
+
+  * wip
+  * charger: rate-limit status_change_work to prevent workqueue storms
+  * touchscreen: fix charger mode race + UFS: reduce null buffer log spam
+  * debian: update changelog for Build 20 (touchscreen+UFS fixes)
+  * ext4: silence container umount spam + touch: fix gesture resume ordering
+  * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
   * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
 
- -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 18:30:00 +0800
+ -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 18:26:32 +0800
+

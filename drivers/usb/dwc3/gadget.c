@@ -1747,12 +1747,7 @@ static int dwc3_gadget_ep_dequeue(struct usb_ep *ep,
 			}
 			goto out1;
 		}
-		if (dep->number == 0) {
-			dev_dbg(dwc->dev, "ep0 request %pK already completed, ignoring dequeue\n",
-				request);
-			goto out0;
-		}
-		dev_err(dwc->dev, "request %pK was not queued to %s\n",
+		dev_dbg(dwc->dev, "request %pK was not queued to %s\n",
 				request, ep->name);
 		ret = -EINVAL;
 		goto out0;
