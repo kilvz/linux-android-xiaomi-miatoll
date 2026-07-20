@@ -173,13 +173,12 @@ struct smb1390 {
 	struct pmic_revid_data	*pmic_rev_id;
 
 	/* work structs */
-	struct delayed_work	status_change_work;
+	struct work_struct	status_change_work;
 	struct work_struct	taper_work;
 
 	/* mutexes */
 	spinlock_t		status_change_lock;
 	struct mutex		die_chan_lock;
-	unsigned long		last_status_change_jiffies;
 
 	/* votables */
 	struct votable		*disable_votable;
@@ -1029,9 +1028,7 @@ static int smb1390_notifier_cb(struct notifier_block *nb,
 		if (!chip->status_change_running) {
 			chip->status_change_running = true;
 			pm_stay_awake(chip->dev);
-			mod_delayed_work(system_wq,
-				&chip->status_change_work,
-				msecs_to_jiffies(1000));
+			schedule_work(&chip->status_change_work);
 		}
 		spin_unlock_irqrestore(&chip->status_change_lock, flags);
 
@@ -1087,17 +1084,12 @@ static void smb1390_configure_ilim(struct smb1390 *chip, int mode)
 static void smb1390_status_change_work(struct work_struct *work)
 {
 	struct smb1390 *chip = container_of(work, struct smb1390,
-					    status_change_work.work);
+					    status_change_work);
 	union power_supply_propval pval = {0, };
 	int rc;
 
 	if (!is_psy_voter_available(chip))
 		goto out;
-
-	if (time_is_after_jiffies(chip->last_status_change_jiffies +
-			msecs_to_jiffies(500)))
-		goto out;
-	chip->last_status_change_jiffies = jiffies;
 
 	/*
 	 * If batt soc is not valid upon bootup, but becomes
@@ -1836,7 +1828,7 @@ static int smb1390_master_probe(struct smb1390 *chip)
 	if (!chip->cp_ws)
 		return -ENOMEM;
 
-	INIT_DELAYED_WORK(&chip->status_change_work, smb1390_status_change_work);
+	INIT_WORK(&chip->status_change_work, smb1390_status_change_work);
 	INIT_WORK(&chip->taper_work, smb1390_taper_work);
 
 	rc = smb1390_init_hw(chip);
@@ -1889,7 +1881,7 @@ out_votables:
 	smb1390_destroy_votables(chip);
 out_work:
 	cancel_work(&chip->taper_work);
-	cancel_delayed_work(&chip->status_change_work);
+	cancel_work(&chip->status_change_work);
 	wakeup_source_unregister(chip->cp_ws);
 	return rc;
 }
@@ -2079,7 +2071,7 @@ static int smb1390_remove(struct platform_device *pdev)
 	vote(chip->disable_votable, USER_VOTER, true, 0);
 	vote(chip->disable_votable, SOC_LEVEL_VOTER, true, 0);
 	cancel_work(&chip->taper_work);
-	cancel_delayed_work(&chip->status_change_work);
+	cancel_work(&chip->status_change_work);
 	wakeup_source_unregister(chip->cp_ws);
 	smb1390_destroy_votables(chip);
 	smb1390_release_channels(chip);

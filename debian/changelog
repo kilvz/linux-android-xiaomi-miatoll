@@ -1,20 +1,12 @@
-linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720104032.b23.master) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720114515.74fa750.master+git20260720121000.b24.master) master; urgency=medium
 
-  * Build 23: Revert dangerous dwc3-msm OTG no-teardown + ep0 dequeue bypass
-  * Revert dwc3-msm DRD_STATE_PERIPHERAL split: !BSV must teardown gadget
-    (no-teardown on VBUS drop caused DWC3 state mismatch → hard freeze)
-  * Revert ep0 dequeue bypass (use-after-free risk); keep dev_err→dev_dbg only
-  * Keep FTS USB event debounce (500ms) — safe, fixes charge mode toggle storm
+  * Build 24: revert SMB1398/SMB1390 delayed_work (causes apps freeze ~10s after USB plug)
+  * Revert SMB1398 + SMB1390 status_change_work back to original schedule_work
+    (delayed_work w/ 500ms rate-limit + last_status_change_jiffies guard + 1s mod_delayed
+     delayed charger config → PD negotiation never stabilizes → app freeze chain accelerates)
+  * Keep: pr_debug in smb1390_get_fastcharge_mode, FTS USB event debounce (500ms),
+    DWC3 ep0 dev_err→dev_dbg, ext4/ufs log reductions
+  * The delayed_work (commit b5a3820a9) changed the freeze timing from hours → seconds;
+    reverting restores original timing. Root cause of hour-scale freeze is still unresolved.
 
-linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720102632.a3ac5c3.master) master; urgency=medium
-
-  * wip
-  * charger: rate-limit status_change_work to prevent workqueue storms
-  * touchscreen: fix charger mode race + UFS: reduce null buffer log spam
-  * debian: update changelog for Build 20 (touchscreen+UFS fixes)
-  * ext4: silence container umount spam + touch: fix gesture resume ordering
-  * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
-  * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
-
- -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 18:26:32 +0800
-
+ -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 20:10:00 +0800

@@ -297,12 +297,11 @@ struct smb1398_chip {
 	struct votable		*usb_icl_votable;
 
 
-	struct delayed_work	status_change_work;
+	struct work_struct	status_change_work;
 	struct work_struct	taper_work;
 
 	struct mutex		die_chan_lock;
 	spinlock_t		status_change_lock;
-	unsigned long		last_status_change_jiffies;
 
 	int			irqs[NUM_IRQS];
 	int			die_temp;
@@ -1520,13 +1519,13 @@ static int smb1390_get_fastcharge_mode(struct smb1398_chip *chip)
 	int rc = 0;
 
 	if (!chip->usb_psy)
-		return 0;
+		return -EINVAL;
 
 	rc = power_supply_get_property(chip->usb_psy,
 				POWER_SUPPLY_PROP_FASTCHARGE_MODE, &pval);
 	if (rc < 0) {
 		pr_debug("Couldn't read fastcharge mode:%d\n", rc);
-		return 0;
+		return rc;
 	}
 	pr_debug("pval.intval: %d\n", pval.intval);
 
@@ -1539,7 +1538,7 @@ static int smb1390_get_fastcharge_mode(struct smb1398_chip *chip)
 static void smb1398_status_change_work(struct work_struct *work)
 {
 	struct smb1398_chip *chip = container_of(work,
-			struct smb1398_chip, status_change_work.work);
+			struct smb1398_chip, status_change_work);
 	union power_supply_propval pval = {0};
 	int rc, ilim_ua;
 	int curr_vfloat_uv, vfloat_thr_uv, fast_charge_mode = 0;
@@ -1547,11 +1546,6 @@ static void smb1398_status_change_work(struct work_struct *work)
 
 	if (!is_psy_voter_available(chip))
 		goto out;
-
-	if (time_is_after_jiffies(chip->last_status_change_jiffies +
-			msecs_to_jiffies(500)))
-		goto out;
-	chip->last_status_change_jiffies = jiffies;
 
 	if (!is_adapter_in_cc_mode(chip))
 		vote(chip->div2_cp_disable_votable, CUTOFF_SOC_VOTER,
@@ -1726,9 +1720,7 @@ static int smb1398_notifier_cb(struct notifier_block *nb,
 		if (!chip->status_change_running) {
 			chip->status_change_running = true;
 			pm_stay_awake(chip->dev);
-			mod_delayed_work(system_wq,
-				&chip->status_change_work,
-				msecs_to_jiffies(1000));
+			schedule_work(&chip->status_change_work);
 		}
 		spin_unlock_irqrestore(&chip->status_change_lock, flags);
 	}
@@ -1998,7 +1990,7 @@ static int smb1398_div2_cp_master_probe(struct smb1398_chip *chip)
 	}
 
 	spin_lock_init(&chip->status_change_lock);
-	INIT_DELAYED_WORK(&chip->status_change_work, smb1398_status_change_work);
+	INIT_WORK(&chip->status_change_work, &smb1398_status_change_work);
 	INIT_WORK(&chip->taper_work, &smb1398_taper_work);
 
 	chip->nb.notifier_call = smb1398_notifier_cb;
@@ -2469,7 +2461,7 @@ static int smb1398_remove(struct platform_device *pdev)
 		vote(chip->div2_cp_disable_votable, SHUTDOWN_VOTER, true, 0);
 		vote(chip->div2_cp_ilim_votable, SHUTDOWN_VOTER, true, 0);
 		cancel_work_sync(&chip->taper_work);
-		cancel_delayed_work_sync(&chip->status_change_work);
+		cancel_work_sync(&chip->status_change_work);
 		mutex_destroy(&chip->die_chan_lock);
 		smb1398_destroy_votables(chip);
 	}
