@@ -379,7 +379,7 @@ int fts_gesture_suspend(struct fts_ts_data *ts_data)
 		FTS_DEBUG("enable_irq_wake(irq:%d) fail", ts_data->irq);
 	}
 
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 50; i++) {
 		fts_write_reg(0xD1, 0xFF);
 		fts_write_reg(0xD2, 0xFF);
 		fts_write_reg(0xD5, 0xFF);
@@ -387,14 +387,14 @@ int fts_gesture_suspend(struct fts_ts_data *ts_data)
 		fts_write_reg(0xD7, 0xFF);
 		fts_write_reg(0xD8, 0xFF);
 		fts_write_reg(FTS_REG_GESTURE_EN, ENABLE);
-		msleep(1);
+		msleep(2);
 		fts_read_reg(FTS_REG_GESTURE_EN, &state);
 		if (state == ENABLE)
 			break;
 	}
 
-	if (i >= 5)
-		FTS_ERROR("make IC enter into gesture(suspend) fail,state:%x", state);
+	if (i >= 50)
+		FTS_INFO("make IC enter into gesture(suspend) fail,state:%x", state);
 	else
 		FTS_INFO("Enter into gesture(suspend) successfully");
 
@@ -412,16 +412,16 @@ int fts_gesture_resume(struct fts_ts_data *ts_data)
 		FTS_DEBUG("disable_irq_wake(irq:%d) fail", ts_data->irq);
 	}
 
-	for (i = 0; i < 5; i++) {
+	for (i = 0; i < 50; i++) {
 		fts_write_reg(FTS_REG_GESTURE_EN, DISABLE);
-		msleep(1);
+		msleep(2);
 		fts_read_reg(FTS_REG_GESTURE_EN, &state);
 		if (state == DISABLE)
 			break;
 	}
 
-	if (i >= 5)
-		FTS_ERROR("make IC exit gesture(resume) fail,state:%x", state);
+	if (i >= 50)
+		FTS_INFO("make IC exit gesture(resume) fail,state:%x", state);
 	else
 		FTS_INFO("resume from gesture successfully");
 

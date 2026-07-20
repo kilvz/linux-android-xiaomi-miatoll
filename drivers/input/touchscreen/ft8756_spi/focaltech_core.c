@@ -110,6 +110,9 @@ int lct_fts_tp_gesture_callback(bool flag)
 #if LCT_TP_USB_PLUGIN
 #define FTS_USB_DEBOUNCE_MS	500
 
+static bool fts_pending_usb_plugin;
+static bool fts_pending_usb_plugin_val;
+
 void fts_ts_usb_event_callback(void)
 {
 	struct fts_ts_data *ts_data = fts_data;
@@ -131,7 +134,9 @@ static void fts_ts_usb_plugin_work_func(struct work_struct *work)
 		 ts_data->suspended,
 		 fts_captured_plugged_in);
 	if (ts_data->suspended) {
-		FTS_ERROR("tp is suspended,can not to set\n");
+		fts_pending_usb_plugin = true;
+		fts_pending_usb_plugin_val = fts_captured_plugged_in;
+		FTS_INFO("tp suspended, deferring USB plugin state (val=%d)", fts_captured_plugged_in);
 		return;
 	}
 
@@ -1796,6 +1801,10 @@ static int fts_ts_resume(struct device *dev)
 		fts_irq_enable();
 		ts_data->suspended = false;
 #if LCT_TP_USB_PLUGIN
+		if (fts_pending_usb_plugin) {
+			fts_pending_usb_plugin = false;
+			lct_fts_set_charger_mode(fts_pending_usb_plugin_val);
+		}
 		if (g_touchscreen_usb_pulgin.valid)
 			g_touchscreen_usb_pulgin.event_callback();
 #endif
@@ -1830,6 +1839,10 @@ static int fts_ts_resume(struct device *dev)
 	fts_irq_enable();
 
 #if LCT_TP_USB_PLUGIN
+	if (fts_pending_usb_plugin) {
+		fts_pending_usb_plugin = false;
+		lct_fts_set_charger_mode(fts_pending_usb_plugin_val);
+	}
 	if (g_touchscreen_usb_pulgin.valid)
 		g_touchscreen_usb_pulgin.event_callback();
 #endif

@@ -1659,7 +1659,7 @@ int smblib_set_icl_current(struct smb_charger *chg, int icl_ua)
 	bool suspend = (icl_ua <= USBIN_25MA);
 	union power_supply_propval pval = {0, };
 
-	smblib_err(chg, "set icl current = %d\n", icl_ua);
+	smblib_dbg(chg, 0, "set icl current = %d\n", icl_ua);
 
 
 	if (chg->connector_type == POWER_SUPPLY_CONNECTOR_TYPEC) {
@@ -2182,7 +2182,7 @@ static void smblib_get_start_vbat_before_step_charge(struct smb_charger *chg)
 	else
 		pr_err("could not get vbat vol from bms\n");
 
-	pr_err("chg->start_step_vbat: %d\n", chg->start_step_vbat);
+	pr_debug("chg->start_step_vbat: %d\n", chg->start_step_vbat);
 }
 
 /********************
@@ -2488,7 +2488,7 @@ int smblib_get_prop_batt_health(struct smb_charger *chg,
 			}
 			if (pval.intval >= over_voltage_thr_uv) {
 				val->intval = POWER_SUPPLY_HEALTH_OVERVOLTAGE;
-				smblib_err(chg, "battery over-voltage vbat_fg = %duV, fv = %duV\n",
+				smblib_dbg(chg, 0, "battery over-voltage vbat_fg = %duV, fv = %duV\n",
 						pval.intval, effective_fv_uv);
 				goto done;
 			}
@@ -3120,7 +3120,7 @@ static int smblib_dm_pulse(struct smb_charger *chg)
 {
 	int rc;
 
-	smblib_err(chg, "dm_pulse entry\n");
+	smblib_dbg(chg, 0, "dm_pulse entry\n");
 	/* QC 3.0 decrement */
 	rc = smblib_masked_write(chg, CMD_HVDCP_2_REG, SINGLE_DECREMENT_BIT,
 			SINGLE_DECREMENT_BIT);
@@ -3238,7 +3238,7 @@ int smblib_dp_dm(struct smb_charger *chg, int val)
 	/* if raise_vbus work is running, ignore dp_dm pulses */
 	if (chg->raise_vbus_to_detect)
 		return rc;
-	smblib_err(chg, "smblib_dp_dm val=%d\n", val);
+	smblib_dbg(chg, 0, "smblib_dp_dm val=%d\n", val);
 	switch (val) {
 	case POWER_SUPPLY_DP_DM_DP_PULSE:
 		/*
@@ -8065,7 +8065,7 @@ static void smblib_six_pin_batt_step_chg_work(struct work_struct *work)
 	if (rc < 0)
 		return;
 
-	pr_err("input_present: %d\n", input_present);
+	pr_debug("input_present: %d\n", input_present);
 	if (input_present == INPUT_NOT_PRESENT) {
 		if (is_client_vote_enabled(chg->fv_votable,
 						SIX_PIN_VFLOAT_VOTER))
@@ -8123,7 +8123,7 @@ static void smblib_six_pin_batt_step_chg_work(struct work_struct *work)
 		chg->high_vbat_fcc_step += HIGH_VBAT_FCC_UA;
 		chg->taper_ibat_hv_step = TAPER_IBAT_HIGH_TRH_HYS_UA;
 		vote(chg->fcc_votable, HIGH_VBAT_VOTER, true, chg->high_vbat_fcc_step);
-		pr_err("six_pin_work high: main_charge_type: %d, index_vfloat: %d, high_vbat_fcc_step: %d\n",
+		pr_debug("six_pin_work high: main_charge_type: %d, index_vfloat: %d, high_vbat_fcc_step: %d\n",
 				main_charge_type, chg->index_vfloat, chg->high_vbat_fcc_step);
 		interval_ms = STEP_CHG_DELAYED_HIGH_MONITOR_MS;
 		schedule_delayed_work(&chg->six_pin_batt_step_chg_work,
@@ -8150,7 +8150,7 @@ static void smblib_six_pin_batt_step_chg_work(struct work_struct *work)
 	} else {
 		taper_ibat_step = TAPER_IBAT_TRH_HYS_UA;
 	}
-	pr_err("six_pin_work: taper_ibat_step = %d, taper_ibat_hv_step = %d\n",
+	pr_debug("six_pin_work: taper_ibat_step = %d, taper_ibat_hv_step = %d\n",
 			taper_ibat_step, chg->taper_ibat_hv_step);
 
 	if ((main_charge_type == POWER_SUPPLY_CHARGE_TYPE_TAPER)
@@ -8205,7 +8205,7 @@ static void smblib_six_pin_batt_step_chg_work(struct work_struct *work)
 	else
 		interval_ms = STEP_CHG_DELAYED_MONITOR_MS;
 
-	pr_err("six_pin_work: main_charge_type: %d, index_vfloat: %d, current_fcc: %d\n",
+	pr_debug("six_pin_work: main_charge_type: %d, index_vfloat: %d, current_fcc: %d\n",
 				main_charge_type, chg->index_vfloat, current_fcc);
 
 	schedule_delayed_work(&chg->six_pin_batt_step_chg_work,

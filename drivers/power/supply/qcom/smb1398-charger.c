@@ -1681,7 +1681,7 @@ static void smb1398_status_change_work(struct work_struct *work)
 			else
 				vfloat_thr_uv = VFLOAT_FOR_TAPER_THR_MIN;
 			if (curr_vfloat_uv < vfloat_thr_uv) {
-				pr_err("curr vfloat is below threshold, no need taper\n");
+				pr_debug("curr vfloat is below threshold, no need taper\n");
 				goto out;
 			} else {
 				/*
