@@ -1,3 +1,10 @@
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260710022824.fab1cb4.droidian+git20260720064809.b5a3820.master+git20260720073531.a3a9a53.master+git20260720080051.565ed08.master+git20260720082850.e4f9a04.master+git20260720082730.USB_HANG_FIX) master; urgency=medium
+
+  * wip
+  * USB/charger hang cascade: FTS debounce, dwc3 ep0 silent, dwc3-msm no teardown on transient PD drop
+
+ -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 18:30:00 +0800
+
 linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260710022824.fab1cb4.droidian+git20260720064809.b5a3820.master+git20260720073531.a3a9a53.master+git20260720080051.565ed08.master+git20260720082850.e4f9a04.master) master; urgency=medium
 
   * wip

@@ -66,7 +66,7 @@
 
 #if LCT_TP_USB_PLUGIN
 static void fts_ts_usb_plugin_work_func(struct work_struct *work);
-DECLARE_WORK(fts_usb_plugin_work, fts_ts_usb_plugin_work_func);
+DECLARE_DELAYED_WORK(fts_usb_plugin_work, fts_ts_usb_plugin_work_func);
 extern touchscreen_usb_plugin_data_t g_touchscreen_usb_pulgin;
 static bool fts_captured_plugged_in;
 #endif
@@ -108,18 +108,25 @@ int lct_fts_tp_gesture_callback(bool flag)
 }
 
 #if LCT_TP_USB_PLUGIN
+#define FTS_USB_DEBOUNCE_MS	500
+
 void fts_ts_usb_event_callback(void)
 {
+	struct fts_ts_data *ts_data = fts_data;
+
 	fts_captured_plugged_in = g_touchscreen_usb_pulgin.usb_plugged_in;
+	ts_data->usb_debounce_jiffies = jiffies;
 	FTS_INFO("USB event callback: scheduling work (captured_plugged_in=%d, valid=%d)",
 		 fts_captured_plugged_in,
 		 g_touchscreen_usb_pulgin.valid);
-	schedule_work(&fts_usb_plugin_work);
+	schedule_delayed_work(&fts_usb_plugin_work, 0);
 }
 
 static void fts_ts_usb_plugin_work_func(struct work_struct *work)
 {
 	struct fts_ts_data *ts_data = fts_data;
+	unsigned long elapsed;
+
 	FTS_INFO("USB plugin work running (suspended=%d, captured_plugged_in=%d)",
 		 ts_data->suspended,
 		 fts_captured_plugged_in);
@@ -127,6 +134,16 @@ static void fts_ts_usb_plugin_work_func(struct work_struct *work)
 		FTS_ERROR("tp is suspended,can not to set\n");
 		return;
 	}
+
+	elapsed = jiffies - ts_data->usb_debounce_jiffies;
+	if (time_before(elapsed, msecs_to_jiffies(FTS_USB_DEBOUNCE_MS))) {
+		FTS_INFO("USB event debounce: rescheduling (%d ms remaining)",
+			 jiffies_to_msecs(msecs_to_jiffies(FTS_USB_DEBOUNCE_MS) - elapsed));
+		schedule_delayed_work(&fts_usb_plugin_work,
+				      msecs_to_jiffies(FTS_USB_DEBOUNCE_MS) - elapsed);
+		return;
+	}
+
 	lct_fts_set_charger_mode(fts_captured_plugged_in);
 	return;
 

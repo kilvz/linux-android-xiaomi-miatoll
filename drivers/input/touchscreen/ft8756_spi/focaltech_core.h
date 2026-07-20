@@ -177,6 +177,7 @@ struct fts_ts_data {
 	bool cover_mode;
 	bool charger_mode;
 	bool gesture_mode;	/* gesture enable or disable, default: disable */
+	unsigned long usb_debounce_jiffies;
 #ifdef CONFIG_PM
 	bool dev_pm_suspend;
 #endif

@@ -4647,9 +4647,8 @@ static void dwc3_otg_sm_work(struct work_struct *w)
 		break;
 
 	case DRD_STATE_PERIPHERAL:
-		if (!test_bit(B_SESS_VLD, &mdwc->inputs) ||
-				!test_bit(ID, &mdwc->inputs)) {
-			dev_dbg(mdwc->dev, "!id || !bsv\n");
+		if (!test_bit(ID, &mdwc->inputs)) {
+			dev_dbg(mdwc->dev, "!id in periph, -> idle\n");
 			mdwc->drd_state = DRD_STATE_IDLE;
 			cancel_delayed_work_sync(&mdwc->sdp_check);
 			dwc3_otg_start_peripheral(mdwc, 0);
@@ -4659,9 +4658,20 @@ static void dwc3_otg_sm_work(struct work_struct *w)
 			 * DRD_STATE_IDLE state
 			 */
 			pm_runtime_put_sync_suspend(mdwc->dev);
-			dbg_event(0xFF, "!BSV psync",
+			dbg_event(0xFF, "!ID psync",
 				atomic_read(&mdwc->dev->power.usage_count));
 			work = 1;
+		} else if (!test_bit(B_SESS_VLD, &mdwc->inputs)) {
+			/*
+			 * B_SESS_VLD lost while still in peripheral mode.
+			 * This can be a transient PD renegotiation when a
+			 * charger is plugged while USB data is active.
+			 * Just update power instead of tearing down the
+			 * gadget entirely — the Type-C controller will
+			 * signal a real cable removal via ID if needed.
+			 */
+			dev_dbg(mdwc->dev, "!bsv in periph, update power only\n");
+			dwc3_msm_gadget_vbus_draw(mdwc, 0);
 		} else if (test_bit(B_SUSPEND, &mdwc->inputs) &&
 			test_bit(B_SESS_VLD, &mdwc->inputs)) {
 			dev_dbg(mdwc->dev, "BPER bsv && susp\n");
