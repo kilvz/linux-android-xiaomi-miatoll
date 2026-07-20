@@ -271,11 +271,15 @@ int lct_fts_set_charger_mode(bool en)
 	if (en) {
 		FTS_INFO("enter charge mode");
 		ret = fts_ex_mode_switch(MODE_CHARGER, ENABLE);
+		if (ret >= 0)
+			ts_data->charger_mode = ENABLE;
 	} else {
 		FTS_INFO("exit charge mode ");
 		ret = fts_ex_mode_switch(MODE_CHARGER, DISABLE);
+		if (ret >= 0)
+			ts_data->charger_mode = DISABLE;
 	}
-	FTS_INFO("charge mode:%d", ts_data->charger_mode);
+	FTS_INFO("charger mode:%d", ts_data->charger_mode);
 	return ret;
 }
 

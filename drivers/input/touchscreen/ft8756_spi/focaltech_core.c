@@ -68,6 +68,7 @@
 static void fts_ts_usb_plugin_work_func(struct work_struct *work);
 DECLARE_WORK(fts_usb_plugin_work, fts_ts_usb_plugin_work_func);
 extern touchscreen_usb_plugin_data_t g_touchscreen_usb_pulgin;
+static bool fts_captured_plugged_in;
 #endif
 
 /*****************************************************************************
@@ -109,8 +110,9 @@ int lct_fts_tp_gesture_callback(bool flag)
 #if LCT_TP_USB_PLUGIN
 void fts_ts_usb_event_callback(void)
 {
-	FTS_INFO("USB event callback: scheduling work (plugged_in=%d, valid=%d)",
-		 g_touchscreen_usb_pulgin.usb_plugged_in,
+	fts_captured_plugged_in = g_touchscreen_usb_pulgin.usb_plugged_in;
+	FTS_INFO("USB event callback: scheduling work (captured_plugged_in=%d, valid=%d)",
+		 fts_captured_plugged_in,
 		 g_touchscreen_usb_pulgin.valid);
 	schedule_work(&fts_usb_plugin_work);
 }
@@ -118,14 +120,14 @@ void fts_ts_usb_event_callback(void)
 static void fts_ts_usb_plugin_work_func(struct work_struct *work)
 {
 	struct fts_ts_data *ts_data = fts_data;
-	FTS_INFO("USB plugin work running (suspended=%d, plugged_in=%d)",
+	FTS_INFO("USB plugin work running (suspended=%d, captured_plugged_in=%d)",
 		 ts_data->suspended,
-		 g_touchscreen_usb_pulgin.usb_plugged_in);
+		 fts_captured_plugged_in);
 	if (ts_data->suspended) {
 		FTS_ERROR("tp is suspended,can not to set\n");
 		return;
 	}
-	lct_fts_set_charger_mode(g_touchscreen_usb_pulgin.usb_plugged_in);
+	lct_fts_set_charger_mode(fts_captured_plugged_in);
 	return;
 
 }
@@ -1757,31 +1759,24 @@ static int fts_ts_suspend(struct device *dev)
 static int fts_ts_resume(struct device *dev)
 {
 	struct fts_ts_data *ts_data = fts_data;
-
 	FTS_FUNC_ENTER();
 	if (!ts_data->suspended) {
 		FTS_DEBUG("Already in awake state");
 		return 0;
 	}
 
-	// Always restore the shared reset GPIO — suspend pulled it low
-	// and the display panel depends on it being high.
 	gpio_direction_output(fts_data->pdata->reset_gpio, 1);
 
-	// Check if TP is already valid — if so, skip the disruptive
-	// HW reset but still restore all essential state (wake from
-	// sleep, modes, IRQ, USB callback) to match the full path.
-	if (fts_wait_tp_to_valid() == 0) {
-		FTS_INFO("TP already valid, skip HW reset");
-		fts_write_reg(FTS_REG_POWER_MODE, 0x00);
+	if (ts_data->gesture_mode)
+		fts_gesture_resume(ts_data);
+
+	if (fts_write_reg(FTS_REG_POWER_MODE, 0x00) == 0) {
+		FTS_INFO("TP wake from sleep OK");
 		fts_release_all_finger();
 		fts_ex_mode_recovery(ts_data);
 #if FTS_ESDCHECK_EN
 		fts_esdcheck_resume();
 #endif
-		if (ts_data->gesture_mode) {
-			fts_gesture_resume(ts_data);
-		}
 		fts_irq_enable();
 		ts_data->suspended = false;
 #if LCT_TP_USB_PLUGIN
@@ -1792,7 +1787,7 @@ static int fts_ts_resume(struct device *dev)
 		return 0;
 	}
 
-	FTS_INFO("TP not valid, doing full HW reset recovery");
+	FTS_INFO("TP wake failed, doing full HW reset recovery");
 	fts_release_all_finger();
 
 #if FTS_POWER_SOURCE_CUST_EN
@@ -1807,10 +1802,8 @@ static int fts_ts_resume(struct device *dev)
 	fts_esdcheck_resume();
 #endif
 
-	if (ts_data->gesture_mode) {
+	if (ts_data->gesture_mode)
 		fts_gesture_resume(ts_data);
-	} else {
-	}
 
 	ts_data->suspended = false;
 
@@ -1824,6 +1817,7 @@ static int fts_ts_resume(struct device *dev)
 	if (g_touchscreen_usb_pulgin.valid)
 		g_touchscreen_usb_pulgin.event_callback();
 #endif
+
 	lcd_esd_enable(1);
 	FTS_FUNC_EXIT();
 	return 0;

@@ -197,7 +197,7 @@ static struct clk_branch video_cc_venus_ahb_clk = {
 
 static struct clk_branch video_cc_venus_ctl_axi_clk = {
 	.halt_reg = 0x9cc,
-	.halt_check = BRANCH_HALT,
+	.halt_check = BRANCH_HALT_DELAY,
 	.clkr = {
 		.enable_reg = 0x9cc,
 		.enable_mask = BIT(0),
