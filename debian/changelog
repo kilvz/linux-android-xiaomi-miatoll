@@ -1,8 +1,10 @@
-linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260710022824.fab1cb4.droidian+git20260720064809.b5a3820.master+git20260720073531.a3a9a53.master) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+droidian12+git20260710022824.fab1cb4.droidian+git20260720064809.b5a3820.master+git20260720073531.a3a9a53.master+git20260720080051.565ed08.master+git20260720082850.e4f9a04.master) master; urgency=medium
 
   * wip
   * charger: rate-limit status_change_work to prevent workqueue storms
   * touchscreen: fix charger mode race + UFS: reduce null buffer log spam
+  * debian: update changelog for Build 20 (touchscreen+UFS fixes)
+  * ext4: silence container umount spam + touch: fix gesture resume ordering
 
- -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 15:35:31 +0800
+ -- Droidian User <user@droidian.org>  Mon, 20 Jul 2026 16:28:50 +0800
 

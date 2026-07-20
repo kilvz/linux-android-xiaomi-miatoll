@@ -1767,12 +1767,11 @@ static int fts_ts_resume(struct device *dev)
 
 	gpio_direction_output(fts_data->pdata->reset_gpio, 1);
 
-	if (ts_data->gesture_mode)
-		fts_gesture_resume(ts_data);
-
 	if (fts_write_reg(FTS_REG_POWER_MODE, 0x00) == 0) {
 		FTS_INFO("TP wake from sleep OK");
 		fts_release_all_finger();
+		if (ts_data->gesture_mode)
+			fts_gesture_resume(ts_data);
 		fts_ex_mode_recovery(ts_data);
 #if FTS_ESDCHECK_EN
 		fts_esdcheck_resume();
