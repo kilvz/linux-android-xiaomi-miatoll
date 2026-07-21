@@ -153,7 +153,7 @@ static struct clk_rcg2 video_cc_venus_clk_src = {
 
 static struct clk_branch video_cc_vcodec0_axi_clk = {
 	.halt_reg = 0x9ec,
-	.halt_check = BRANCH_HALT,
+	.halt_check = BRANCH_HALT_DELAY,
 	.clkr = {
 		.enable_reg = 0x9ec,
 		.enable_mask = BIT(0),
