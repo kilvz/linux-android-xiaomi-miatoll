@@ -1,15 +1,17 @@
-linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master+git20260720194047.0ab188a.master) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master+git20260720194047.0ab188a.master+git20260721081429.c4c3b7b.master) master; urgency=medium
 
+  * wip
+  * charger: rate-limit status_change_work to prevent workqueue storms
+  * touchscreen: fix charger mode race + UFS: reduce null buffer log spam
+  * debian: update changelog for Build 20 (touchscreen+UFS fixes)
+  * ext4: silence container umount spam + touch: fix gesture resume ordering
+  * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
+  * USB/charger hang: break cascade with FTS debounce + dwc3 fixes
+  * Build 23: revert dangerous dwc3-msm no-teardown (causes hard freeze) + ep0 dequeue bypass
+  * Build 24: revert SMB1398/SMB1390 delayed_work (accelerated freeze from hours to ~10s)
   * Build 25: silence charger/PD dmesg spam + FTS gesture resume fix + deferred USB plugin
-  * smb5-lib.c: downgrade 9 pr_err/smblib_err to pr_debug/smblib_dbg (set icl current,
-    start_step_vbat, battery over-voltage, dm_pulse, dp_dm, input_present, six_pin_work x3)
-  * policy_engine.c: downgrade usbpd_info/pr_info to usbpd_dbg/pr_debug (tx_msgid, request pdo)
-  * smb1398-charger.c: downgrade pr_err to pr_debug (curr vfloat below threshold)
-  * focaltech_gesture.c: increase gesture suspend/resume retry from 5x1ms to 50x2ms;
-    downgrade FTS_ERROR to FTS_INFO
-  * focaltech_core.c: defer USB plugin state when TP suspended - apply directly in resume
-    handler instead of dropping the event
-  * KERNEL_BASE_VERSION override NOT added (user request)
+  * Build 25: clean up changelog
+  * Build 26: fix venus vcodec0 axi clock halt check + phosh PAM setuid fix
 
- -- Droidian User <user@droidian.org>  Tue, 21 Jul 2026 03:40:47 +0800
+ -- Droidian User <user@droidian.org>  Tue, 21 Jul 2026 16:14:29 +0800
 

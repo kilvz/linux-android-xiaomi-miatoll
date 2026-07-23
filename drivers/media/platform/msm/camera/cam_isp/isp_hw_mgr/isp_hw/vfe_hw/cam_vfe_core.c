@@ -867,7 +867,7 @@ int cam_vfe_core_init(struct cam_vfe_hw_core_info  *core_info,
 	}
 
 	/* Read Bus is not valid for vfe-lite */
-	if ((hw_intf->hw_idx == 0) || (hw_intf->hw_idx == 1)) {
+	if (vfe_hw_info->bus_rd_hw_info) {
 		rc = cam_vfe_bus_init(vfe_hw_info->bus_rd_version, BUS_TYPE_RD,
 			soc_info, hw_intf, vfe_hw_info->bus_rd_hw_info,
 			core_info->vfe_irq_controller, &core_info->vfe_rd_bus);
