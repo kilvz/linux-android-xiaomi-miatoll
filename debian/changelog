@@ -1,4 +1,4 @@
-linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master+git20260720194047.0ab188a.master+git20260721081429.c4c3b7b.master) master; urgency=medium
+linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+git20260720121000.b25.master+git20260720194047.0ab188a.master+git20260721081429.c4c3b7b.master+git20260723210000.71c8596.master) master; urgency=medium
 
   * wip
   * charger: rate-limit status_change_work to prevent workqueue storms
@@ -12,6 +12,7 @@ linux-android-xiaomi-miatoll (4.14.336+usb-fix+git20260720130509.d01dce6.master+
   * Build 25: silence charger/PD dmesg spam + FTS gesture resume fix + deferred USB plugin
   * Build 25: clean up changelog
   * Build 26: fix venus vcodec0 axi clock halt check + phosh PAM setuid fix
+  * Fix VFE bus read init for VFE170 — skip when bus_rd_hw_info is NULL
 
- -- Droidian User <user@droidian.org>  Tue, 21 Jul 2026 16:14:29 +0800
+ -- Droidian User <user@droidian.org>  Fri, 24 Jul 2026 05:00:00 +0800
 

@@ -2554,11 +2554,11 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 	dbg_event(0xFF, "Gadgetstart", 0);
 	spin_lock_irqsave(&dwc->lock, flags);
 	if (dwc->gadget_driver) {
-		dev_err(dwc->dev, "%s is already bound to %s\n",
+		dev_dbg(dwc->dev, "%s is already bound to %s\n",
 				dwc->gadget.name,
 				dwc->gadget_driver->driver.name);
-		ret = -EBUSY;
-		goto err0;
+		spin_unlock_irqrestore(&dwc->lock, flags);
+		return 0;
 	}
 
 	dwc->gadget_driver	= driver;

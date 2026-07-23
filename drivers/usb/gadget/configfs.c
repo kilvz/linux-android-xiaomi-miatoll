@@ -331,6 +331,11 @@ static ssize_t gadget_dev_desc_UDC_store(struct config_item *item,
 		kfree(name);
 	} else {
 		if (gi->composite.gadget_driver.udc_name) {
+			if (strcmp(gi->composite.gadget_driver.udc_name, name) == 0) {
+				kfree(name);
+				mutex_unlock(&gi->lock);
+				return len;
+			}
 			ret = -EBUSY;
 			goto err;
 		}
