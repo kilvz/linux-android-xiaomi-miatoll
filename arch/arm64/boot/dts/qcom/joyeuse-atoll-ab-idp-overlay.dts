@@ -31,6 +31,12 @@
 #include "joyeuse-atoll-camera-sensor-idp.dtsi"
 #include "cust-high-charging.dtsi"
 
+&qupv3_se4_i2c {
+	tas2562@4c {
+		status = "disabled";
+	};
+};
+
 / {
 	model = "wcd937x Audio Codec AB IDP JOYEUSE";
 	compatible = "qcom,cust-atoll";

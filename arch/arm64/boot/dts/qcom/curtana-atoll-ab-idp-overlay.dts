@@ -31,6 +31,12 @@
 #include "curtana-atoll-camera-sensor-idp.dtsi"
 #include "cust-low-charging.dtsi"
 
+&qupv3_se4_i2c {
+	tas2562@4c {
+		status = "disabled";
+	};
+};
+
 / {
 	model = "wcd937x Audio Codec AB IDP CURTANA";
 	compatible = "qcom,cust-atoll";
